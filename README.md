@@ -8,26 +8,27 @@ Argus is a monitoring tool that watches Reddit for specific mentions and sends e
 
 1. Clone the repository and navigate to the project directory
 
-   git clone [repository-url]
-   cd argus
+2. Run the setup script:
 
-2. Create a virtual environment (optional but recommended)
-
-```
-python3 -m venv venv
-source venv/bin/activate
-# On Windows: venv\Scripts\activate
+```bash
+chmod +x setup.sh
+./setup.sh
 ```
 
-3. Install required packages
+This will:
 
-   pip install -r requirements.txt
+- Create a virtual environment
+- Install required packages
+- Create a .env file from template
+- Make all script files executable
 
-4. Set up environment variables by creating a `.env` file:
+3. Edit the .env file with your credentials:
 
-   - Copy the template: `cp .env.template .env`
+```bash
+nano .env  # or use your preferred editor
+```
 
-   - Edit the .env file with your credentials: `nano .env # or use your preferred editor`
+Required credentials:
 
 - Reddit API credentials:
   - `REDDIT_CLIENT_ID`
@@ -44,22 +45,17 @@ source venv/bin/activate
   - `SUBREDDIT_NAME` - The subreddit to monitor (without the 'r/')
   - `SEARCH_PHRASES` - Comma-separated list of phrases to search for
 
-5. Configure search parameters in `config.json`:
+4. Configure search parameters in `config.json`:
 
-```
- {
+```json
+{
   "subreddit_name": "your_subreddit",
-  "search_phrases": [
-    "phrase 1",
-    "phrase 2",
-    "phrase 3"
-  ]
- }
+  "search_phrases": ["phrase 1", "phrase 2", "phrase 3"]
+}
 ```
 
-6. Make the bash scripts executable:
+5. Make the bash scripts executable:
 
-   `chmod +x setup.sh`
    `chmod +x run_daily_search.sh`
    `chmod +x run_weekly_search.sh`
    `chmod +x cleanup.sh`
