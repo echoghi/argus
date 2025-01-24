@@ -5,10 +5,10 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Log files to delete
 LOG_FILES=(
-    "$SCRIPT_DIR/setup.log"
-    "$SCRIPT_DIR/daily_search.log"
-    "$SCRIPT_DIR/weekly_search.log"
-    "$SCRIPT_DIR/error.log"
+    "$SCRIPT_DIR/logs/setup.log"
+    "$SCRIPT_DIR/logs/daily_search.log"
+    "$SCRIPT_DIR/logs/weekly_search.log"
+    "$SCRIPT_DIR/logs/error.log"
 )
 
 # JSON result files to delete
@@ -35,7 +35,7 @@ for json_file in "${JSON_FILES[@]}"; do
         rm "$json_file"
         echo "Deleted: $json_file"
     else
-        echo "Not found: $json_file"
+        echo "Not found: $log_file"
     fi
 done
 

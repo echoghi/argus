@@ -39,9 +39,6 @@ Required credentials:
   - `SENDER_EMAIL`
   - `SENDER_PASSWORD`
   - `RECIPIENT_EMAIL`
-- Search configuration:
-  - `SUBREDDIT_NAME` - The subreddit to monitor (without the 'r/')
-  - `SEARCH_PHRASES` - Comma-separated list of phrases to search for
 
 4. Configure search parameters in `config.json`:
 

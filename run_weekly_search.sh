@@ -4,18 +4,17 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Log file path
-LOG_FILE="$SCRIPT_DIR/weekly_search.log"
+LOG_FILE="$SCRIPT_DIR/logs/weekly_search.log"
 
 # Virtual environment path
 VENV_DIR="$SCRIPT_DIR/venv"
 
 # Function to log messages with timestamp
 log_message() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"
+    local message="[$(date '+%Y-%m-%d %H:%M:%S')] $1"
+    echo "$message" >> "$LOG_FILE"
+    echo "$message"
 }
-
-# Create log file if it doesn't exist
-touch "$LOG_FILE"
 
 # Log start of execution
 log_message "Starting weekly Reddit search..."
@@ -30,11 +29,15 @@ fi
 source "$VENV_DIR/bin/activate"
 
 # Run the Python script with 7 days argument
-log_message "Starting weekly Reddit search..."
-if python "$SCRIPT_DIR/main.py" --days 7; then
+python "$SCRIPT_DIR/main.py" --days 7 2>&1 | tee -a "$LOG_FILE"
+
+# Store the exit code
+exit_code=${PIPESTATUS[0]}
+
+if [ $exit_code -eq 0 ]; then
     log_message "Search completed successfully"
 else
-    log_message "Error: Search script failed with exit code $?"
+    log_message "Error: Search script failed with exit code $exit_code"
 fi
 
 # Deactivate virtual environment

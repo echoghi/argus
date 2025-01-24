@@ -110,7 +110,7 @@ def search_comments(subreddit, phrases, days=0, unique_urls=None):
 def log_error(error_message, error_traceback=None):
     """Write error message and traceback to error log"""
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    error_path = os.path.join(os.path.dirname(__file__), 'error.log')
+    error_path = os.path.join(os.path.dirname(__file__), 'logs', 'error.log')
     
     with open(error_path, 'a') as f:
         f.write(f"[{timestamp}] ERROR: {error_message}\n")
@@ -147,6 +147,16 @@ def send_email(results, days=0):
         log_error(error_msg, traceback.format_exc())
         print(error_msg)
 
+def load_existing_results(filename):
+    """Load existing results from JSON file if it exists"""
+    try:
+        if os.path.exists(filename):
+            with open(filename, 'r', encoding='utf-8') as f:
+                return {result['url'] for result in json.load(f)}
+    except Exception as e:
+        print(f"Warning: Could not load existing results: {e}")
+    return set()
+
 def main():
     try:
         parser = argparse.ArgumentParser(description='Search Reddit for mentions within a timeframe.')
@@ -154,23 +164,28 @@ def main():
                            help='Number of days to search (0 for today only, default: 0)')
         args = parser.parse_args()
 
-        # Execute search
+        # Determine filename and load existing URLs
+        filename = 'weekly_reddit_results.json' if args.days > 0 else 'daily_reddit_results.json'
+        existing_urls = load_existing_results(filename)
+        
+        # Execute search with existing URLs
         post_results, unique_urls = search_posts(subreddit_name, search_phrases, args.days)
+        unique_urls.update(existing_urls)  # Add existing URLs to the set
         comment_results = search_comments(subreddit_name, search_phrases, args.days, unique_urls)
 
-        # Combine results
-        all_results = post_results + comment_results
+        # Filter out results that exist in the previous results
+        new_results = [result for result in (post_results + comment_results) 
+                      if result['url'] not in existing_urls]
 
         # Save to JSON file
-        filename = 'weekly_reddit_results.json' if args.days > 0 else 'daily_reddit_results.json'
         with open(filename, 'w', encoding='utf-8') as f:
-            json.dump(all_results, f, indent=2, ensure_ascii=False)
+            json.dump(new_results, f, indent=2, ensure_ascii=False)
 
-        print(f"Saved {len(all_results)} results to {filename}")
+        print(f"Saved {len(new_results)} new results to {filename}")
 
-        # Send email if results were found
-        if all_results:
-            send_email(all_results, args.days)
+        # Send email if new results were found
+        if new_results:
+            send_email(new_results, args.days)
 
     except Exception as e:
         error_msg = f"Script execution failed: {str(e)}"

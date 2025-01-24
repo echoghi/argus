@@ -4,16 +4,25 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Log files
-SETUP_LOG="$SCRIPT_DIR/setup.log"
-DAILY_LOG="$SCRIPT_DIR/daily_search.log"
-WEEKLY_LOG="$SCRIPT_DIR/weekly_search.log"
-ERROR_LOG="$SCRIPT_DIR/error.log"
+SETUP_LOG="$SCRIPT_DIR/logs/setup.log"
+DAILY_LOG="$SCRIPT_DIR/logs/daily_search.log"
+WEEKLY_LOG="$SCRIPT_DIR/logs/weekly_search.log"
+ERROR_LOG="$SCRIPT_DIR/logs/error.log"
 
 # Requirements file path
 REQUIREMENTS_FILE="$SCRIPT_DIR/requirements.txt"
 
 # Virtual environment path
 VENV_DIR="$SCRIPT_DIR/venv"
+
+# Create logs directory if it doesn't exist
+if [ ! -d "$SCRIPT_DIR/logs" ]; then
+    mkdir -p "$SCRIPT_DIR/logs"
+    echo "Created logs directory"
+fi
+
+# Set directory permissions
+chmod 777 "$SCRIPT_DIR/logs"
 
 # Function to log messages with timestamp
 log_message() {
@@ -29,21 +38,23 @@ elif [[ -f /etc/debian_version ]]; then
     OS="debian"
 fi
 
-log_message "Detected OS: $OS"
-
 # Create log files and set permissions
-touch "$SETUP_LOG" "$DAILY_LOG" "$WEEKLY_LOG" "$ERROR_LOG"
+for logfile in "$SETUP_LOG" "$DAILY_LOG" "$WEEKLY_LOG" "$ERROR_LOG"; do
+    if [ ! -f "$logfile" ]; then
+        touch "$logfile"
+        echo "Created $logfile"
+    fi
+    chmod 666 "$logfile"
+done
 
 # Set permissions based on OS
 if [[ "$OS" == "debian" ]]; then
-    # Get the actual user (even when running with sudo)
     ACTUAL_USER=${SUDO_USER:-$USER}
     ACTUAL_GROUP=$(id -gn $ACTUAL_USER)
-    chown "$ACTUAL_USER":"$ACTUAL_GROUP" "$SETUP_LOG" "$DAILY_LOG" "$WEEKLY_LOG" "$ERROR_LOG"
+    chown "$ACTUAL_USER":"$ACTUAL_GROUP" "$SCRIPT_DIR/logs"/*
 fi
 
-chmod 644 "$SETUP_LOG" "$DAILY_LOG" "$WEEKLY_LOG" "$ERROR_LOG"
-
+log_message "Detected OS: $OS"
 log_message "Starting setup..."
 
 # Install system dependencies if needed
@@ -107,5 +118,16 @@ fi
 
 # Deactivate virtual environment
 deactivate
+
+# Create .env from template if it doesn't exist
+if [ ! -f .env ]; then
+    cp .env.template .env
+    echo "Created .env file from template"
+fi
+
+# Make scripts executable
+chmod +x main.py
+chmod +x run_daily_search.sh
+chmod +x run_weekly_search.sh
 
 log_message "Setup completed successfully" 

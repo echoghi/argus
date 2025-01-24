@@ -173,3 +173,6 @@ cython_debug/
 # Reddit search results
 daily_reddit_results.json
 weekly_reddit_results.json
+
+# logs
+logs/
