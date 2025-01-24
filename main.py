@@ -24,6 +24,7 @@ reddit = praw.Reddit(
     client_secret=os.getenv('REDDIT_CLIENT_SECRET'),
     user_agent=os.getenv('REDDIT_USER_AGENT'),
     username=os.getenv('REDDIT_USERNAME'),
+    ratelimit_seconds=300,  # Wait 5 minutes when rate limited
 )
 
 # Get subreddit and search phrases from config
