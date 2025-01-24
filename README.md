@@ -19,8 +19,6 @@ This will:
 
 - Create a virtual environment
 - Install required packages
-- Create a .env file from template
-- Make all script files executable
 
 3. Edit the .env file with your credentials:
 
