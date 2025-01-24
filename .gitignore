@@ -169,3 +169,7 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Reddit search results
+daily_reddit_results.json
+weekly_reddit_results.json
